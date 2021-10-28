@@ -26,6 +26,9 @@ var UserSchema = new mongoose_1.Schema({
         type: Boolean,
         "default": false
     },
+    emailVerificationCode: {
+        type: Number
+    },
     dob: {
         type: String
     },

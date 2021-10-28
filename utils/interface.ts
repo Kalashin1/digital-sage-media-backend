@@ -13,23 +13,28 @@ export interface UserInterface extends Document {
   dob: string
   socialMediaInfo: socialMediaInfo
   createdAt: string
+  token: string
+  emailVerificationCode: number
   updateSocialMediaInfo: (obj: socialMediaInfo) => Promise<string>
   updateGender: (gender: string) => Promise<string>
   updateDisplayImage: (imageUrl: string) => Promise<string>
-  updatePhoneNumber: (phoneNumber: number) => Promise<string>
-  verifyEmail: (token: string) => Promise<boolean>
+  updatePhoneNumber: (phoneNumber: string) => Promise<string>
+  verifyEmail: (code: number) => Promise<boolean>
   updateDOB: (dob: string) => Promise<string>
   createArticle: (article: CreateArticle) => Promise<ArticleInterface>
 }
 
-type loginInfo = {
+export type Gender = 'male' | 'female';
+
+export type loginInfo = {
   email: string
   password: string
 }
 
+type createAccountReturnType = [ UserInterface, string]
 export interface UserModelInterface extends Model<UserInterface>{
-  createAccount: (profile: CreateAccountProfile) => Promise<UserInterface>
-  login: (info: loginInfo) => Promise<UserInterface>
+  createAccount: (profile: CreateAccountProfile) => Promise<createAccountReturnType>
+  login: (info: loginInfo) => Promise<createAccountReturnType>
   sendVerificationEmail: (email: string) => Promise<string>
 }
 

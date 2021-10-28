@@ -1,13 +1,14 @@
 import { model } from 'mongoose';
 import * as bcrypt from 'bcrypt'
 import UserSchema from '../schemas/user.schema'
-import { UserInterface, UserModelInterface, CreateAccountProfile } from '../../utils/interface'
+import { UserInterface, UserModelInterface, CreateAccountProfile, Gender, socialMediaInfo } from '../../utils/interface'
 import { createToken } from '../../utils/jwt-handler'
 import { sendEmail } from '../../utils/email-handler'
 
 UserSchema.statics.createAccount = async function (profile: CreateAccountProfile) {
   const User = await this.create({ ...profile })
-  return User
+  const token = createToken(User._id, process.env.JWT_SECRETE)
+  return [ User, token ]
 }
 
 UserSchema.pre('save', async function(next){
@@ -22,7 +23,6 @@ UserSchema.pre('save', async function(next){
 
 
 UserSchema.post('save', async function(next){
-  const token = createToken(this._id, process.env.JWT_SECRETE)
   const emailOpts = { 
     from: 'noreply@digitalsagemedia.com',
     to: this.email,
@@ -33,11 +33,11 @@ UserSchema.post('save', async function(next){
 })
 
 UserSchema.statics.login = async function({email, password}) {
-
   const user = await this.findOne({email})
   //  param if user with the email exists then compare passowrds
   if(user){
     const result = await bcrypt.compare(password, user.password)
+    const token = createToken(user._id, process.env.JWT_SECRETE)
     if(result){
       let emailOpts = {
         to: email,
@@ -45,8 +45,8 @@ UserSchema.statics.login = async function({email, password}) {
         subject: 'Account Login',
         text: `Recent login activity on your account`
       }
-      await sendEmail(emailOpts)
-      return user
+      // await sendEmail(emailOpts)
+      return [ user, token ]
     }
     else {
       throw Error('incorrect password')
@@ -58,16 +58,56 @@ UserSchema.statics.login = async function({email, password}) {
 
 
 
-UserSchema.statics.sendVerificationEmail = async function (id:string){
-  const { email, _id } = await this.findById(id)
-  const token = createToken(_id, process.env.JWT_EMAIL_VERIFICATION_SECRETE);
-  const emailOpts = { 
-    from: 'noreply@digitalsagemedia.con',
-    to: email,
-    subject: 'Verify your token',
-    text: 'click this link to verify your '
+UserSchema.statics.sendVerificationEmail = async function (email:string){
+  const user = await this.find({ email })
+  if(email){
+    const token = createToken(user._id, process.env.JWT_EMAIL_VERIFICATION_SECRETE);
+    const emailVerificationCode = Math.floor(Math.random() * 100000)
+    console.log(emailVerificationCode)
+    await user.updateOne({ emailVerificationCode })
+    const emailOpts = { 
+      from: 'noreply@digitalsagemedia.con',
+      to: user.email,
+      subject: 'Verify your token',
+      text: `verification code ${emailVerificationCode}.`
+    }
+    await sendEmail(emailOpts)
+  } 
+  throw Error('No user with that email!');
+  
+}
+
+UserSchema.methods.verifyEmail = async function (code: number) {
+  if (code === this.emailVerificationCode){
+    await this.updateOne({ emailVerified: true })
+    return true;
   }
-  await sendEmail(emailOpts)
+  return false;
+}
+
+UserSchema.methods.updateGender = async function (gender: Gender){
+  await this.update({ gender })
+  return "Gender updated!"
+}
+
+UserSchema.methods.updateDisplayImage = async function (displayImage: string){
+  await this.update({ displayImage })
+  return 'display image updated!'
+}
+
+UserSchema.methods.updateDOB = async function (dob: string){
+  await this.update({ dob })
+  return 'date of birth updated!'
+}
+
+UserSchema.methods.updatePhoneNumber = async function (phoneNumber: string){
+  await this.update({ phoneNumber })
+  return 'Phone number updated!'
+}
+
+UserSchema.methods.updateSocialMediaInfo = async function (obj: socialMediaInfo){
+  await this.update({ socialMediaInfo: obj })
+  return 'Phone number updated!'
 }
 
 

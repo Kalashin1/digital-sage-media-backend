@@ -36,8 +36,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.getUsers = exports.login = exports.createAccount = void 0;
+exports.deleteUser = exports.updateSocialMediaInfo = exports.updatePhoneNumber = exports.updateDisplayImage = exports.updateDOB = exports.updateGender = exports.getUser = exports.getUsers = exports.login = exports.createAccount = void 0;
 var user_model_1 = require("../../data/models/user.model");
+// * Create an account for the user
+/**
+ *
+ * @function createAccount, creates a new account for a user
+ * @returns the newly created object
+ */
 var createAccount = function (profile) { return __awaiter(void 0, void 0, void 0, function () {
     var user, error_1;
     return __generator(this, function (_a) {
@@ -57,6 +63,7 @@ var createAccount = function (profile) { return __awaiter(void 0, void 0, void 0
     });
 }); };
 exports.createAccount = createAccount;
+// * Log a user in
 var login = function (info) { return __awaiter(void 0, void 0, void 0, function () {
     var user, error_2;
     return __generator(this, function (_a) {
@@ -76,6 +83,7 @@ var login = function (info) { return __awaiter(void 0, void 0, void 0, function 
     });
 }); };
 exports.login = login;
+// * Get all users on the platform
 var getUsers = function () { return __awaiter(void 0, void 0, void 0, function () {
     var Users, error_3;
     return __generator(this, function (_a) {
@@ -95,3 +103,158 @@ var getUsers = function () { return __awaiter(void 0, void 0, void 0, function (
     });
 }); };
 exports.getUsers = getUsers;
+// * Get a particular user
+var getUser = function (id) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, error_4;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, user_model_1["default"].findById(id)];
+            case 1:
+                User = _a.sent();
+                return [2 /*return*/, User];
+            case 2:
+                error_4 = _a.sent();
+                console.log(error_4);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.getUser = getUser;
+// * Update gender
+var updateGender = function (id, gender) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, error_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 3, , 4]);
+                return [4 /*yield*/, user_model_1["default"].findById(id)];
+            case 1:
+                User = _a.sent();
+                return [4 /*yield*/, User.updateGender(gender)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, User];
+            case 3:
+                error_5 = _a.sent();
+                console.log(error_5);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateGender = updateGender;
+// * Update DOB
+var updateDOB = function (id, dob) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, error_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 3, , 4]);
+                return [4 /*yield*/, user_model_1["default"].findById(id)];
+            case 1:
+                User = _a.sent();
+                return [4 /*yield*/, User.updateDOB(dob)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, User];
+            case 3:
+                error_6 = _a.sent();
+                console.log(error_6);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateDOB = updateDOB;
+// * Update Display image
+var updateDisplayImage = function (id, imageUrl) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, error_7;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 3, , 4]);
+                return [4 /*yield*/, user_model_1["default"].findById(id)];
+            case 1:
+                User = _a.sent();
+                return [4 /*yield*/, User.updateDisplayImage(imageUrl)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, User];
+            case 3:
+                error_7 = _a.sent();
+                console.log(error_7);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateDisplayImage = updateDisplayImage;
+// * Update phoneNumber
+var updatePhoneNumber = function (id, phoneNumber) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, error_8;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 3, , 4]);
+                return [4 /*yield*/, user_model_1["default"].findById(id)];
+            case 1:
+                User = _a.sent();
+                return [4 /*yield*/, User.updatePhoneNumber(phoneNumber)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, User];
+            case 3:
+                error_8 = _a.sent();
+                console.log(error_8);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updatePhoneNumber = updatePhoneNumber;
+// * Update socialMediaLinks
+var updateSocialMediaInfo = function (id, _socialMediaInfo) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, error_9;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 3, , 4]);
+                return [4 /*yield*/, user_model_1["default"].findById(id)];
+            case 1:
+                User = _a.sent();
+                return [4 /*yield*/, User.updateSocialMediaInfo(_socialMediaInfo)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, User];
+            case 3:
+                error_9 = _a.sent();
+                console.log(error_9);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateSocialMediaInfo = updateSocialMediaInfo;
+// * delete a user 
+var deleteUser = function (_id) { return __awaiter(void 0, void 0, void 0, function () {
+    var error_10;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, user_model_1["default"].remove({ _id: _id })];
+            case 1:
+                _a.sent();
+                return [2 /*return*/, "User Deleted!"];
+            case 2:
+                error_10 = _a.sent();
+                console.log(error_10);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.deleteUser = deleteUser;

@@ -54,13 +54,14 @@ var jwt_handler_1 = require("../../utils/jwt-handler");
 var email_handler_1 = require("../../utils/email-handler");
 user_schema_1["default"].statics.createAccount = function (profile) {
     return __awaiter(this, void 0, void 0, function () {
-        var User;
+        var User, token;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, this.create(__assign({}, profile))];
                 case 1:
                     User = _a.sent();
-                    return [2 /*return*/, User];
+                    token = (0, jwt_handler_1.createToken)(User._id, process.env.JWT_SECRETE);
+                    return [2 /*return*/, [User, token]];
             }
         });
     });
@@ -87,11 +88,10 @@ user_schema_1["default"].pre('save', function (next) {
 });
 user_schema_1["default"].post('save', function (next) {
     return __awaiter(this, void 0, void 0, function () {
-        var token, emailOpts;
+        var emailOpts;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    token = (0, jwt_handler_1.createToken)(this._id, process.env.JWT_SECRETE);
                     emailOpts = {
                         from: 'noreply@digitalsagemedia.com',
                         to: this.email,
@@ -109,7 +109,7 @@ user_schema_1["default"].post('save', function (next) {
 user_schema_1["default"].statics.login = function (_a) {
     var email = _a.email, password = _a.password;
     return __awaiter(this, void 0, void 0, function () {
-        var user, result, emailOpts;
+        var user, result, token, emailOpts;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, this.findOne({ email: email })
@@ -117,46 +117,131 @@ user_schema_1["default"].statics.login = function (_a) {
                 ];
                 case 1:
                     user = _b.sent();
-                    if (!user) return [3 /*break*/, 5];
+                    if (!user) return [3 /*break*/, 3];
                     return [4 /*yield*/, bcrypt.compare(password, user.password)];
                 case 2:
                     result = _b.sent();
-                    if (!result) return [3 /*break*/, 4];
-                    emailOpts = {
-                        to: email,
-                        from: 'noreply@digitalsagemedia.com',
-                        subject: 'Account Login',
-                        text: "Recent login activity on your account"
-                    };
-                    return [4 /*yield*/, (0, email_handler_1.sendEmail)(emailOpts)];
-                case 3:
-                    _b.sent();
-                    return [2 /*return*/, user];
-                case 4: throw Error('incorrect password');
-                case 5: throw Error('incorrect email, no user exists for this email');
+                    token = (0, jwt_handler_1.createToken)(user._id, process.env.JWT_SECRETE);
+                    if (result) {
+                        emailOpts = {
+                            to: email,
+                            from: 'noreply@digitalsagemedia.com',
+                            subject: 'Account Login',
+                            text: "Recent login activity on your account"
+                        };
+                        // await sendEmail(emailOpts)
+                        return [2 /*return*/, [user, token]];
+                    }
+                    else {
+                        throw Error('incorrect password');
+                    }
+                    _b.label = 3;
+                case 3: throw Error('incorrect email, no user exists for this email');
             }
         });
     });
 };
-user_schema_1["default"].statics.sendVerificationEmail = function (id) {
+user_schema_1["default"].statics.sendVerificationEmail = function (email) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, email, _id, token, emailOpts;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, this.findById(id)];
+        var user, token, emailVerificationCode, emailOpts;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.find({ email: email })];
                 case 1:
-                    _a = _b.sent(), email = _a.email, _id = _a._id;
-                    token = (0, jwt_handler_1.createToken)(_id, process.env.JWT_EMAIL_VERIFICATION_SECRETE);
+                    user = _a.sent();
+                    if (!email) return [3 /*break*/, 4];
+                    token = (0, jwt_handler_1.createToken)(user._id, process.env.JWT_EMAIL_VERIFICATION_SECRETE);
+                    emailVerificationCode = Math.floor(Math.random() * 100000);
+                    console.log(emailVerificationCode);
+                    return [4 /*yield*/, user.updateOne({ emailVerificationCode: emailVerificationCode })];
+                case 2:
+                    _a.sent();
                     emailOpts = {
                         from: 'noreply@digitalsagemedia.con',
-                        to: email,
+                        to: user.email,
                         subject: 'Verify your token',
-                        text: 'click this link to verify your '
+                        text: "verification code " + emailVerificationCode + "."
                     };
                     return [4 /*yield*/, (0, email_handler_1.sendEmail)(emailOpts)];
-                case 2:
-                    _b.sent();
-                    return [2 /*return*/];
+                case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4: throw Error('No user with that email!');
+            }
+        });
+    });
+};
+user_schema_1["default"].methods.verifyEmail = function (code) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!(code === this.emailVerificationCode)) return [3 /*break*/, 2];
+                    return [4 /*yield*/, this.updateOne({ emailVerified: true })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, true];
+                case 2: return [2 /*return*/, false];
+            }
+        });
+    });
+};
+user_schema_1["default"].methods.updateGender = function (gender) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.update({ gender: gender })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, "Gender updated!"];
+            }
+        });
+    });
+};
+user_schema_1["default"].methods.updateDisplayImage = function (displayImage) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.update({ displayImage: displayImage })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, 'display image updated!'];
+            }
+        });
+    });
+};
+user_schema_1["default"].methods.updateDOB = function (dob) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.update({ dob: dob })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, 'date of birth updated!'];
+            }
+        });
+    });
+};
+user_schema_1["default"].methods.updatePhoneNumber = function (phoneNumber) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.update({ phoneNumber: phoneNumber })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, 'Phone number updated!'];
+            }
+        });
+    });
+};
+user_schema_1["default"].methods.updateSocialMediaInfo = function (obj) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.update({ socialMediaInfo: obj })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, 'Phone number updated!'];
             }
         });
     });

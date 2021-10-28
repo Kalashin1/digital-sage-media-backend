@@ -45,23 +45,29 @@ var mongoose = require("mongoose");
 require('dotenv').config();
 var user_controller_1 = require("./controllers/user/user.controller");
 var url = 'mongodb://localhost:27017/disme';
-var typeDefs = (0, apollo_server_1.gql)(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    createdAt: String!\n  }\n\n  type Query {\n    users: [User!]!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User\n  }\n"], ["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    createdAt: String!\n  }\n\n  type Query {\n    users: [User!]!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User\n  }\n"])));
+var typeDefs = (0, apollo_server_1.gql)(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    token: String!\n    createdAt: String!\n    socialMediaInfo: _SocialMediaInfo\n  }\n\n  type _SocialMediaInfo {\n    facebook: String!\n    twitter: String!\n    instagram: String!\n  }\n\n  type Query {\n    users: [User!]!\n    user(id: String): User!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  input SocialMediaInfo {\n    facebook: String\n    twitter: String\n    instagram: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User!\n    updateDOB(id: String, dob: String): User!\n    updateDisplayImage(id: String, imageUrl: String): User!\n    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!\n    updatePhoneNumber(id: String, phoneNumber: String): User!\n    updateGender(id: String, gender: String): User!\n    deleteAccount(id: String): User!\n  }\n"], ["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    token: String!\n    createdAt: String!\n    socialMediaInfo: _SocialMediaInfo\n  }\n\n  type _SocialMediaInfo {\n    facebook: String!\n    twitter: String!\n    instagram: String!\n  }\n\n  type Query {\n    users: [User!]!\n    user(id: String): User!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  input SocialMediaInfo {\n    facebook: String\n    twitter: String\n    instagram: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User!\n    updateDOB(id: String, dob: String): User!\n    updateDisplayImage(id: String, imageUrl: String): User!\n    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!\n    updatePhoneNumber(id: String, phoneNumber: String): User!\n    updateGender(id: String, gender: String): User!\n    deleteAccount(id: String): User!\n  }\n"])));
 var resolvers = {
     Query: {
-        users: function () {
+        users: function (_, args, context) {
+            console.log(context.req.headers.usertoken);
             return (0, user_controller_1.getUsers)();
+        },
+        user: function (_, _a, context) {
+            var id = _a.id;
+            return (0, user_controller_1.getUser)(id);
         }
     },
     Mutation: {
         createAccount: function (_, _a, context) {
             var profile = _a.profile;
             return __awaiter(this, void 0, void 0, function () {
-                var User;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
+                var _b, User, token;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
                         case 0: return [4 /*yield*/, (0, user_controller_1.createAccount)(profile)];
                         case 1:
-                            User = _b.sent();
+                            _b = _c.sent(), User = _b[0], token = _b[1];
+                            User.token = token;
                             return [2 /*return*/, User];
                     }
                 });
@@ -70,20 +76,101 @@ var resolvers = {
         login: function (_, _a, context) {
             var loginInfo = _a.loginInfo;
             return __awaiter(this, void 0, void 0, function () {
-                var User;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
+                var _b, user, token;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
                         case 0: return [4 /*yield*/, (0, user_controller_1.login)(loginInfo)];
                         case 1:
-                            User = _b.sent();
-                            return [2 /*return*/, User];
+                            _b = _c.sent(), user = _b[0], token = _b[1];
+                            user.token = token;
+                            return [2 /*return*/, user];
+                    }
+                });
+            });
+        },
+        updatePhoneNumber: function (_, _a, context) {
+            var phoneNumber = _a.phoneNumber, id = _a.id;
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, (0, user_controller_1.updatePhoneNumber)(id, phoneNumber)];
+                        case 1: return [2 /*return*/, _b.sent()];
+                    }
+                });
+            });
+        },
+        updateDOB: function (_, _a, context) {
+            var dob = _a.dob, id = _a.id;
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, (0, user_controller_1.updateDOB)(id, dob)];
+                        case 1: return [2 /*return*/, _b.sent()];
+                    }
+                });
+            });
+        },
+        updateDisplayImage: function (_, _a, context) {
+            var imageUrl = _a.imageUrl, id = _a.id;
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, (0, user_controller_1.updateDisplayImage)(id, imageUrl)];
+                        case 1: return [2 /*return*/, _b.sent()];
+                    }
+                });
+            });
+        },
+        updateGender: function (_, _a, context) {
+            var gender = _a.gender, id = _a.id;
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, (0, user_controller_1.updateGender)(id, gender)];
+                        case 1: return [2 /*return*/, _b.sent()];
+                    }
+                });
+            });
+        },
+        updateSocialMediaInfo: function (_, _a, context) {
+            var socialMediaInfo = _a.socialMediaInfo, id = _a.id;
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0: return [4 /*yield*/, (0, user_controller_1.updateSocialMediaInfo)(id, socialMediaInfo)];
+                        case 1: return [2 /*return*/, _b.sent()];
+                    }
+                });
+            });
+        },
+        deleteAccount: function (_, _a, context) {
+            var id = _a.id;
+            return __awaiter(this, void 0, void 0, function () {
+                var user;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            user = (0, user_controller_1.getUser)(id);
+                            if (!user) return [3 /*break*/, 2];
+                            return [4 /*yield*/, (0, user_controller_1.deleteUser)(id)];
+                        case 1:
+                            _b.sent();
+                            return [2 /*return*/, user];
+                        case 2: return [2 /*return*/];
                     }
                 });
             });
         }
     }
 };
-var server = new apollo_server_1.ApolloServer({ typeDefs: typeDefs, resolvers: resolvers });
+var server = new apollo_server_1.ApolloServer({
+    typeDefs: typeDefs,
+    resolvers: resolvers,
+    context: function (_a) {
+        var req = _a.req, res = _a.res;
+        return ({ req: req, res: res });
+    }
+});
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(function (_result) { return server.listen().then(function (_a) {
     var url = _a.url;

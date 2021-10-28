@@ -26,6 +26,9 @@ const UserSchema: Schema<UserInterface> = new Schema<UserInterface>({
     type: Boolean,
     default: false
   },
+  emailVerificationCode: {
+    type: Number
+  },
   dob: {
     type: String
   },
