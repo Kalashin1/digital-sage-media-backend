@@ -51,7 +51,7 @@ const ArticleSchema: Schema<ArticleInterface> = new Schema<ArticleInterface>({
     default: () => 0
   },
   readingTime: {
-    type: Number
+    type: String
   },
   comments: {
     type: [String]

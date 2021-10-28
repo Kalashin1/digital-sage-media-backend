@@ -14,7 +14,9 @@ export interface UserInterface extends Document {
   socialMediaInfo: socialMediaInfo
   createdAt: string
   token: string
+  articles: string[]
   emailVerificationCode: number
+  savedArticles: string[]
   updateSocialMediaInfo: (obj: socialMediaInfo) => Promise<string>
   updateGender: (gender: string) => Promise<string>
   updateDisplayImage: (imageUrl: string) => Promise<string>
@@ -57,6 +59,7 @@ export type CreateArticle = {
   title: string
   body: string
   tags: string[]
+  _id?: string
   category: string
   author: string
   socialImage?: string
@@ -73,13 +76,24 @@ export interface ArticleInterface extends Document {
   tags: string[]
   category: string
   views: number
-  readingTime: number
+  readingTime: string
   likes: number
   dislikes: number
   saves: number
   thumbsUp: number
   author: string
   comments: string[]
+  likeArticle: (userId: string, optn: string) => Promise<ArticleInterface>
+  readArticle: (userId: string, optn: string) => Promise<ArticleInterface>
+  saveArticle: (userId: string, optn: string) => Promise<ArticleInterface>
+  thumbsUpArticle: (userId: string, optn: string) => Promise<ArticleInterface>
+}
+
+export interface ArticleModelInterface extends Model<ArticleInterface>{
+  deleteArticle: (articleId: string) => Promise<string>
+  getUserArticles: (author: string) => Promise<ArticleInterface[]>
+  updateArticle: (article: CreateArticle) => Promise<ArticleInterface>
+  createArticle: (article: CreateArticle) => Promise<ArticleInterface>
 }
 
 export interface CommentInterface extends Document {

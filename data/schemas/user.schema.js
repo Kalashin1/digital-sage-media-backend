@@ -47,6 +47,12 @@ var UserSchema = new mongoose_1.Schema({
     createdAt: {
         type: String,
         "default": function () { return new Date().toString(); }
+    },
+    articles: {
+        type: [String]
+    },
+    savedArticles: {
+        type: [String]
     }
 });
 exports["default"] = UserSchema;

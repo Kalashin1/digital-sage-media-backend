@@ -3,6 +3,17 @@ var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cook
     if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
     return cooked;
 };
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -44,21 +55,46 @@ var apollo_server_1 = require("apollo-server");
 var mongoose = require("mongoose");
 require('dotenv').config();
 var user_controller_1 = require("./controllers/user/user.controller");
+var article_controller_1 = require("./controllers/article/article.controller");
+var article_model_1 = require("./data/models/article.model");
+var article_controller_2 = require("./controllers/article/article.controller");
 var url = 'mongodb://localhost:27017/disme';
-var typeDefs = (0, apollo_server_1.gql)(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    token: String!\n    createdAt: String!\n    socialMediaInfo: _SocialMediaInfo\n  }\n\n  type _SocialMediaInfo {\n    facebook: String!\n    twitter: String!\n    instagram: String!\n  }\n\n  type Query {\n    users: [User!]!\n    user(id: String): User!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  input SocialMediaInfo {\n    facebook: String\n    twitter: String\n    instagram: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User!\n    updateDOB(id: String, dob: String): User!\n    updateDisplayImage(id: String, imageUrl: String): User!\n    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!\n    updatePhoneNumber(id: String, phoneNumber: String): User!\n    updateGender(id: String, gender: String): User!\n    deleteAccount(id: String): User!\n  }\n"], ["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    token: String!\n    createdAt: String!\n    socialMediaInfo: _SocialMediaInfo\n  }\n\n  type _SocialMediaInfo {\n    facebook: String!\n    twitter: String!\n    instagram: String!\n  }\n\n  type Query {\n    users: [User!]!\n    user(id: String): User!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  input SocialMediaInfo {\n    facebook: String\n    twitter: String\n    instagram: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User!\n    updateDOB(id: String, dob: String): User!\n    updateDisplayImage(id: String, imageUrl: String): User!\n    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!\n    updatePhoneNumber(id: String, phoneNumber: String): User!\n    updateGender(id: String, gender: String): User!\n    deleteAccount(id: String): User!\n  }\n"])));
+var typeDefs = (0, apollo_server_1.gql)(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    token: String!\n    createdAt: String!\n    socialMediaInfo: _SocialMediaInfo\n    savedArticles: [Article]\n    articles: [Article]\n  }\n\n  type Article {\n    _id: ID\n    title: String!\n    createdAt: String!\n    updatedAt: String!\n    body: String!\n    socialImage: String!\n    url: String!\n    tags: [String!]!\n    category: String!\n    views: Int!\n    readingTime: String!\n    likes: Int!\n    dislikes: Int!\n    saves: Int!\n    thumbsUp: Int!\n    author: String!\n    comments: [String!]!\n  }\n\n  type _SocialMediaInfo {\n    facebook: String!\n    twitter: String!\n    instagram: String!\n  }\n\n  type Query {\n    users: [User!]!\n    user(id: String): User!\n    articles: [Article!]!\n    article(id: String): Article!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  input SocialMediaInfo {\n    facebook: String\n    twitter: String\n    instagram: String\n  }\n\n  input CreateArticleInput {\n    title: String!\n    body: String!\n    tags: [String!]!\n    category: String!\n    author: String!\n    socialImage: String\n    _id: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User!\n    updateDOB(id: String, dob: String): User!\n    updateDisplayImage(id: String, imageUrl: String): User!\n    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!\n    updatePhoneNumber(id: String, phoneNumber: String): User!\n    updateGender(id: String, gender: String): User!\n    deleteAccount(id: String): User!\n    createArticle(article: CreateArticleInput): Article\n    updateArticle(article: CreateArticleInput): Article\n    deleteArticle(article: CreateArticleInput): Article\n    toggleLikes(articleId: String, userId: String, optn: String): Article\n    toggleSaves(articleId: String, userId: String, optn: String): Article\n    toggleViews(articleId: String, userId: String, optn: String): Article\n  }\n"], ["\n  type User {\n    name: String!\n    _id: ID!\n    email: String!\n    emailVerified: String!\n    phoneNumber: String!\n    displayImage: String!\n    gender: String!\n    dob: String!\n    token: String!\n    createdAt: String!\n    socialMediaInfo: _SocialMediaInfo\n    savedArticles: [Article]\n    articles: [Article]\n  }\n\n  type Article {\n    _id: ID\n    title: String!\n    createdAt: String!\n    updatedAt: String!\n    body: String!\n    socialImage: String!\n    url: String!\n    tags: [String!]!\n    category: String!\n    views: Int!\n    readingTime: String!\n    likes: Int!\n    dislikes: Int!\n    saves: Int!\n    thumbsUp: Int!\n    author: String!\n    comments: [String!]!\n  }\n\n  type _SocialMediaInfo {\n    facebook: String!\n    twitter: String!\n    instagram: String!\n  }\n\n  type Query {\n    users: [User!]!\n    user(id: String): User!\n    articles: [Article!]!\n    article(id: String): Article!\n  }\n\n  input CreateAccount {\n    name: String\n    email: String\n    phoneNumber: String\n    gender: String\n    password: String\n  }\n\n  input LoginInfo{\n    email: String\n    password: String\n  }\n\n  input SocialMediaInfo {\n    facebook: String\n    twitter: String\n    instagram: String\n  }\n\n  input CreateArticleInput {\n    title: String!\n    body: String!\n    tags: [String!]!\n    category: String!\n    author: String!\n    socialImage: String\n    _id: String\n  }\n\n  type Mutation{\n    createAccount(profile: CreateAccount): User!\n    login(loginInfo: LoginInfo): User!\n    updateDOB(id: String, dob: String): User!\n    updateDisplayImage(id: String, imageUrl: String): User!\n    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!\n    updatePhoneNumber(id: String, phoneNumber: String): User!\n    updateGender(id: String, gender: String): User!\n    deleteAccount(id: String): User!\n    createArticle(article: CreateArticleInput): Article\n    updateArticle(article: CreateArticleInput): Article\n    deleteArticle(article: CreateArticleInput): Article\n    toggleLikes(articleId: String, userId: String, optn: String): Article\n    toggleSaves(articleId: String, userId: String, optn: String): Article\n    toggleViews(articleId: String, userId: String, optn: String): Article\n  }\n"])));
 var resolvers = {
-    Query: {
-        users: function (_, args, context) {
-            console.log(context.req.headers.usertoken);
-            return (0, user_controller_1.getUsers)();
+    User: {
+        articles: function (parent) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, article_model_1["default"].getUserArticles(parent._id)];
+                        case 1: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
         },
-        user: function (_, _a, context) {
-            var id = _a.id;
-            return (0, user_controller_1.getUser)(id);
+        savedArticles: function (parent) {
+            return __awaiter(this, void 0, void 0, function () {
+                var articles;
+                var _this = this;
+                return __generator(this, function (_a) {
+                    articles = parent.savedArticles.map(function (article) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            return [2 /*return*/, article_model_1["default"].findById(article)];
+                        });
+                    }); });
+                    return [2 /*return*/, articles];
+                });
+            });
         }
     },
-    Mutation: {
-        createAccount: function (_, _a, context) {
+    Query: __assign({ users: function (_, args, context) {
+            // console.log(context.req.headers.usertoken);
+            return (0, user_controller_1.getUsers)();
+        }, user: function (_, _a, context) {
+            var id = _a.id;
+            return (0, user_controller_1.getUser)(id);
+        } }, article_controller_2.ArticleQueries),
+    Mutation: __assign({ createAccount: function (_, _a, context) {
             var profile = _a.profile;
             return __awaiter(this, void 0, void 0, function () {
                 var _b, User, token;
@@ -72,8 +108,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        login: function (_, _a, context) {
+        }, login: function (_, _a, context) {
             var loginInfo = _a.loginInfo;
             return __awaiter(this, void 0, void 0, function () {
                 var _b, user, token;
@@ -87,8 +122,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        updatePhoneNumber: function (_, _a, context) {
+        }, updatePhoneNumber: function (_, _a, context) {
             var phoneNumber = _a.phoneNumber, id = _a.id;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
@@ -98,8 +132,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        updateDOB: function (_, _a, context) {
+        }, updateDOB: function (_, _a, context) {
             var dob = _a.dob, id = _a.id;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
@@ -109,8 +142,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        updateDisplayImage: function (_, _a, context) {
+        }, updateDisplayImage: function (_, _a, context) {
             var imageUrl = _a.imageUrl, id = _a.id;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
@@ -120,8 +152,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        updateGender: function (_, _a, context) {
+        }, updateGender: function (_, _a, context) {
             var gender = _a.gender, id = _a.id;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
@@ -131,8 +162,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        updateSocialMediaInfo: function (_, _a, context) {
+        }, updateSocialMediaInfo: function (_, _a, context) {
             var socialMediaInfo = _a.socialMediaInfo, id = _a.id;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
@@ -142,8 +172,7 @@ var resolvers = {
                     }
                 });
             });
-        },
-        deleteAccount: function (_, _a, context) {
+        }, deleteAccount: function (_, _a, context) {
             var id = _a.id;
             return __awaiter(this, void 0, void 0, function () {
                 var user;
@@ -160,8 +189,7 @@ var resolvers = {
                     }
                 });
             });
-        }
-    }
+        } }, article_controller_1["default"])
 };
 var server = new apollo_server_1.ApolloServer({
     typeDefs: typeDefs,

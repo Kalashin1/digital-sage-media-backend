@@ -47,6 +47,12 @@ const UserSchema: Schema<UserInterface> = new Schema<UserInterface>({
   createdAt: {
     type: String,
     default: () => new Date().toString()
+  },
+  articles: {
+    type: [String]
+  },
+  savedArticles: {
+    type: [String]
   }
 })
 
