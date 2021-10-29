@@ -101,6 +101,28 @@ export interface CommentInterface extends Document {
   createdAt: string
   updatedAt: string
   body: string
-  user: string
-  article: string
+  userId: string
+  parentCommentId: string
+  articleId: string
+  likes: number
+  likeComment: (userId: string, optn: string) => Promise<CommentInterface>
+  comment: (comment: CreateChildComment) => Promise<CommentInterface>
+}
+
+export interface CreateComment {
+  _id?: string
+  userId: string
+  articleId: string
+  body: string
+}
+
+export interface CreateChildComment extends CreateComment {
+  parentCommentId?: string
+}
+
+
+export interface CommentModelInterface extends Model<CommentInterface>{
+  createComment: (comment: CreateComment) => Promise<CommentInterface>
+  editComment: (comment: CreateComment) => Promise<CommentInterface>
+  deleteComment: (comment: CreateComment) => Promise<CommentInterface>
 }

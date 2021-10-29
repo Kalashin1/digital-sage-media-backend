@@ -2,14 +2,14 @@ import { Schema } from 'mongoose'
 import { CommentInterface } from '../../utils/interface'
 
 const CommentSchema: Schema<CommentInterface> = new Schema<CommentInterface>({
-  article: {
+  articleId: {
     type: String,
     required: [true, 'Please the article the comments belong to.']
   },
   createdAt: {
     type: String,
     default: () => new Date().toString()
-  },
+  }, 
   updatedAt: {
     type: String,
     default: () => new Date().toString()
@@ -18,8 +18,17 @@ const CommentSchema: Schema<CommentInterface> = new Schema<CommentInterface>({
     type: String,
     required: [true, 'Please the body of the comment.']
   },
-  user: {
+  userId: {
     type: String,
     required: [true, 'Please the author of the title.']
+  },
+  parentCommentId: {
+    type: String
+  },
+  likes: {
+    type: Number,
+    default: () => 0
   }
 })
+
+export default CommentSchema

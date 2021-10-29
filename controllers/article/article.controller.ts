@@ -1,4 +1,5 @@
 import Articles from "../../data/models/article.model";
+import Comments from "../../data/models/comment.model";
 
 const ArticleMutations = {
 
@@ -45,6 +46,12 @@ export const ArticleQueries = {
   async article(_:any, { id }, context){
     const article = await Articles.findById(id)
     return article
+  }
+}
+
+export const Article = {
+  async comments(parent:any){
+    return await Comments.find({ articleId: parent._id})
   }
 }
 

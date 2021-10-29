@@ -36,134 +36,107 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.Article = exports.ArticleQueries = void 0;
-var article_model_1 = require("../../data/models/article.model");
+exports.Comment = exports.CommentMutations = exports.CommentQueries = void 0;
 var comment_model_1 = require("../../data/models/comment.model");
-var ArticleMutations = {
-    createArticle: function (_, _a, context) {
-        var article = _a.article;
+exports.CommentQueries = {
+    comments: function (_, _a) {
+        var articleId = _a.articleId;
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].createArticle(article)];
+                    case 0: return [4 /*yield*/, comment_model_1["default"].find({ articleId: articleId })];
                     case 1: return [2 /*return*/, _b.sent()];
                 }
             });
         });
     },
-    updateArticle: function (_, _a, context) {
-        var article = _a.article;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].updateArticle(article)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    deleteArticle: function (_, _a, context) {
-        var article = _a.article;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].deleteArticle(article)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    toggleLikes: function (_, _a, context) {
-        var articleId = _a.articleId, userId = _a.userId, optn = _a.optn;
-        return __awaiter(this, void 0, void 0, function () {
-            var Article;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].findById(articleId)];
-                    case 1:
-                        Article = _b.sent();
-                        if (!Article) return [3 /*break*/, 3];
-                        return [4 /*yield*/, Article.likeArticle(userId, optn)];
-                    case 2: return [2 /*return*/, _b.sent()];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    },
-    toggleViews: function (_, _a, context) {
-        var articleId = _a.articleId, userId = _a.userId, optn = _a.optn;
-        return __awaiter(this, void 0, void 0, function () {
-            var Article;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].findById(articleId)];
-                    case 1:
-                        Article = _b.sent();
-                        if (!Article) return [3 /*break*/, 3];
-                        return [4 /*yield*/, Article.readArticle(userId, optn)];
-                    case 2: return [2 /*return*/, _b.sent()];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    },
-    toggleSaves: function (_, _a, context) {
-        var articleId = _a.articleId, userId = _a.userId, optn = _a.optn;
-        return __awaiter(this, void 0, void 0, function () {
-            var Article;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].findById(articleId)];
-                    case 1:
-                        Article = _b.sent();
-                        if (!Article) return [3 /*break*/, 3];
-                        return [4 /*yield*/, Article.saveArticle(userId, optn)];
-                    case 2: return [2 /*return*/, _b.sent()];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-};
-exports.ArticleQueries = {
-    articles: function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var articles;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].find({})];
-                    case 1:
-                        articles = _a.sent();
-                        return [2 /*return*/, articles];
-                }
-            });
-        });
-    },
-    article: function (_, _a, context) {
+    comment: function (_, _a) {
         var id = _a.id;
         return __awaiter(this, void 0, void 0, function () {
-            var article;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].findById(id)];
-                    case 1:
-                        article = _b.sent();
-                        return [2 /*return*/, article];
+                    case 0: return [4 /*yield*/, comment_model_1["default"].findById(id)];
+                    case 1: return [2 /*return*/, _b.sent()];
                 }
             });
         });
     }
 };
-exports.Article = {
+exports.CommentMutations = {
+    createComment: function (_, _a) {
+        var comment = _a.comment;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, comment_model_1["default"].createComment(comment)];
+                    case 1: return [2 /*return*/, _b.sent()];
+                }
+            });
+        });
+    },
+    editComment: function (_, _a) {
+        var comment = _a.comment;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, comment_model_1["default"].editComment(comment)];
+                    case 1: return [2 /*return*/, _b.sent()];
+                }
+            });
+        });
+    },
+    deleteComment: function (_, _a) {
+        var comment = _a.comment;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, comment_model_1["default"].deleteComment(comment)];
+                    case 1: return [2 /*return*/, _b.sent()];
+                }
+            });
+        });
+    },
+    likeComment: function (_, _a) {
+        var userId = _a.userId, optn = _a.optn, commentId = _a.commentId;
+        return __awaiter(this, void 0, void 0, function () {
+            var Comment;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, comment_model_1["default"].findById(commentId)];
+                    case 1:
+                        Comment = _b.sent();
+                        return [4 /*yield*/, Comment.likeComment(userId, optn)];
+                    case 2: return [2 /*return*/, _b.sent()];
+                }
+            });
+        });
+    },
+    createChildComment: function (_, _a) {
+        var comment = _a.comment;
+        return __awaiter(this, void 0, void 0, function () {
+            var Comment;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, comment_model_1["default"].findById(comment.parentCommentId)];
+                    case 1:
+                        Comment = _b.sent();
+                        if (!Comment) return [3 /*break*/, 3];
+                        return [4 /*yield*/, Comment.comment(comment)];
+                    case 2: return [2 /*return*/, _b.sent()];
+                    case 3: throw Error('No comment exists with that id');
+                }
+            });
+        });
+    }
+};
+exports.Comment = {
     comments: function (parent) {
         return __awaiter(this, void 0, void 0, function () {
+            var comments;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, comment_model_1["default"].find({ articleId: parent._id })];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
+                comments = comment_model_1["default"].find({ parentCommentId: parent._id });
+                return [2 /*return*/, comments];
             });
         });
     }
 };
-exports["default"] = ArticleMutations;

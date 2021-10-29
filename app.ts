@@ -5,7 +5,8 @@ require('dotenv').config()
 import { getUsers, createAccount, login, getUser, updatePhoneNumber, updateDOB, updateDisplayImage, updateSocialMediaInfo, updateGender, deleteUser } from './controllers/user/user.controller'
 import ArticleMutations from "./controllers/article/article.controller";
 import Articles from "./data/models/article.model";
-import { ArticleQueries } from "./controllers/article/article.controller";
+import { ArticleQueries, Article } from "./controllers/article/article.controller";
+import { CommentQueries, CommentMutations, Comment } from "./controllers/comment/comment.controller";
 const url = 'mongodb://localhost:27017/disme'
 
 const typeDefs = gql`
@@ -42,7 +43,19 @@ const typeDefs = gql`
     saves: Int!
     thumbsUp: Int!
     author: String!
-    comments: [String!]!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    _id: ID
+    createdAt: String!
+    updatedAt: String!
+    body: String!
+    userId: String!
+    parentCommentId: String
+    articleId: String!
+    likes: Int!
+    comments: [Comment]!
   }
 
   type _SocialMediaInfo {
@@ -56,6 +69,8 @@ const typeDefs = gql`
     user(id: String): User!
     articles: [Article!]!
     article(id: String): Article!
+    comments(articleId: String): [Comment!]!
+    comment(id: String): Comment!
   }
 
   input CreateAccount {
@@ -87,6 +102,14 @@ const typeDefs = gql`
     _id: String
   }
 
+  input CreateComment {
+    _id: ID
+    userId: String!
+    articleId: String!
+    body: String!
+    parentCommentId: String
+  }
+
   type Mutation{
     createAccount(profile: CreateAccount): User!
     login(loginInfo: LoginInfo): User!
@@ -102,6 +125,11 @@ const typeDefs = gql`
     toggleLikes(articleId: String, userId: String, optn: String): Article
     toggleSaves(articleId: String, userId: String, optn: String): Article
     toggleViews(articleId: String, userId: String, optn: String): Article
+    createComment(comment: CreateComment): Comment
+    editComment(comment: CreateComment): Comment
+    deleteComment(comment: CreateComment): Comment
+    createChildComment(comment: CreateComment): Comment 
+    likeComment(userId: String, optn: String, commentId: String): Comment
   }
 `
 
@@ -117,6 +145,8 @@ const resolvers = {
       return articles
     }
   },
+  Article,
+  Comment,
   Query : {
     users (_: any, args: any, context: any) {
       // console.log(context.req.headers.usertoken);
@@ -125,7 +155,8 @@ const resolvers = {
     user (_:any, { id }, context: any){
       return getUser(id)
     },
-    ...ArticleQueries
+    ...ArticleQueries,
+    ...CommentQueries
   },
 
   Mutation: {
@@ -161,7 +192,8 @@ const resolvers = {
         return user
       }
     },
-    ...ArticleMutations
+    ...ArticleMutations,
+    ...CommentMutations
   }
 }
 
