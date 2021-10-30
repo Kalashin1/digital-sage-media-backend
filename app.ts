@@ -7,6 +7,7 @@ import ArticleMutations from "./controllers/article/article.controller";
 import Articles from "./data/models/article.model";
 import { ArticleQueries, Article } from "./controllers/article/article.controller";
 import { CommentQueries, CommentMutations, Comment } from "./controllers/comment/comment.controller";
+import UserModel from "./data/models/user.model";
 const url = 'mongodb://localhost:27017/disme'
 
 const typeDefs = gql`
@@ -24,6 +25,8 @@ const typeDefs = gql`
     socialMediaInfo: _SocialMediaInfo
     savedArticles: [Article]
     articles: [Article]
+    followers: [User]!
+    following: [User]!
   }
 
   type Article {
@@ -119,6 +122,8 @@ const typeDefs = gql`
     updatePhoneNumber(id: String, phoneNumber: String): User!
     updateGender(id: String, gender: String): User!
     deleteAccount(id: String): User!
+    followUser(userId: String, followerId: String): User!
+    unFollowUser(userId: String, followerId: String): User!
     createArticle(article: CreateArticleInput): Article
     updateArticle(article: CreateArticleInput): Article
     deleteArticle(article: CreateArticleInput): Article
@@ -143,6 +148,12 @@ const resolvers = {
         return Articles.findById(article)
       })
       return articles
+    },
+    async followers(parent:any){
+      return parent.followers.map(f => UserModel.findById(f))
+    },
+    async following(parent:any){
+      return parent.following.map(f => UserModel.findById(f))
     }
   },
   Article,
@@ -191,6 +202,14 @@ const resolvers = {
         await deleteUser(id)
         return user
       }
+    },
+    async followUser(_:any, { userId, followerId }){
+      const user = await UserModel.followUser(userId, followerId)
+      console.log(user)
+      return user
+    },
+    async unFollowUser(_:any, { userId, followerId }){
+      return await UserModel.unFollowUser(userId, followerId)
     },
     ...ArticleMutations,
     ...CommentMutations

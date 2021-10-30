@@ -53,6 +53,12 @@ var UserSchema = new mongoose_1.Schema({
     },
     savedArticles: {
         type: [String]
+    },
+    followers: {
+        type: [String]
+    },
+    following: {
+        type: [String]
     }
 });
 exports["default"] = UserSchema;

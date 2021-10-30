@@ -53,6 +53,12 @@ const UserSchema: Schema<UserInterface> = new Schema<UserInterface>({
   },
   savedArticles: {
     type: [String]
+  },
+  followers: {
+    type: [String]
+  },
+  following: {
+    type: [String]
   }
 })
 

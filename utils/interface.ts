@@ -17,6 +17,8 @@ export interface UserInterface extends Document {
   articles: string[]
   emailVerificationCode: number
   savedArticles: string[]
+  followers: string[]
+  following: string[]
   updateSocialMediaInfo: (obj: socialMediaInfo) => Promise<string>
   updateGender: (gender: string) => Promise<string>
   updateDisplayImage: (imageUrl: string) => Promise<string>
@@ -38,6 +40,8 @@ export interface UserModelInterface extends Model<UserInterface>{
   createAccount: (profile: CreateAccountProfile) => Promise<createAccountReturnType>
   login: (info: loginInfo) => Promise<createAccountReturnType>
   sendVerificationEmail: (email: string) => Promise<string>
+  followUser: (userId: string, followerId: string) => Promise<UserInterface>
+  unFollowUser: (userId: string, followerId: string) => Promise<UserInterface>
 }
 
 

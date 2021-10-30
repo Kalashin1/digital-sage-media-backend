@@ -110,6 +110,43 @@ UserSchema.methods.updateSocialMediaInfo = async function (obj: socialMediaInfo)
   return 'Phone number updated!'
 }
 
+UserSchema.statics.followUser = async function (userId: string, followerId){
+  const follower = await this.findById(followerId)
+  let user = await this.findById(userId)
+  if(follower){
+    const followers = user.followers
+
+    const foundFollower = followers.find(f => f === follower._id.toString())
+    if(foundFollower){
+      throw Error('that follower already exists')
+    }
+    console.log(user._id)
+    await this.updateOne({ _id: userId }, { followers: [...followers, follower._id.toString()]})
+    await this.updateOne({ _id: followerId }, { following: [...follower.following, follower._id.toString()]})
+    user = await this.findById(userId)
+    return user
+  }
+  throw Error('No user with that id!')
+}
+
+UserSchema.statics.unFollowUser = async function (userId: string, followerId){
+  const follower = await this.findById(followerId)
+  let user = await this.findById(userId)
+  if(follower){
+    const followers = user.followers
+    const foundFollower = followers.find(f => f === follower._id.toString())
+    if(foundFollower){
+      await this.updateOne({ _id: user._id }, { followers: followers.filter(f => f !== foundFollower)})
+      await this.updateOne({ _id: follower._id }, { following: follower.following.filter(f => f !== foundFollower)})
+      user = await this.findById(user._id)
+      return user
+    }
+    throw Error('No user with that id')
+  }
+}
+
+
+
 
 const UserModel = model<UserInterface, UserModelInterface>('user', UserSchema);
 
