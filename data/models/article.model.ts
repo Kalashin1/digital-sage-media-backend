@@ -1,12 +1,18 @@
 import { model }  from "mongoose";
 import { ArticleInterface, ArticleModelInterface, CreateArticle } from "../../utils/interface";
 import ArticleSchema from '../schemas/article.schema'
+import Notifications from './notification'
 import UserModel from './user.model'
 
 ArticleSchema.statics.createArticle = async function (article: CreateArticle) {
   const author = await UserModel.findById(article.author)
   if (author){
     const Article = await this.create({...article})
+    await Notifications.create({
+      userId: Article.author,
+      body: `A new Article with title ${Article.title} has been created by ${author.name}`,
+      type: "Article created."
+    })
     return Article
   } else {
     throw Error('No user with Id!');
@@ -40,6 +46,11 @@ ArticleSchema.methods.likeArticle = async function (userId: string, optn: string
   const user = await UserModel.findById(userId);
   if (user) {
     optn === 'add' ? await this.updateOne({ likes: this.likes + 1 }) : await this.updateOne({ likes: this.likes - 1 })
+    await Notifications.create({
+      userId: user._id,
+      body: `You have a new like on your article, total likes, ${this.likes}`,
+      type: "New Like on article."
+    })
     return this
   }
   throw Error('No user exists with that id')

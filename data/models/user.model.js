@@ -59,6 +59,7 @@ exports.__esModule = true;
 var mongoose_1 = require("mongoose");
 var bcrypt = require("bcrypt");
 var user_schema_1 = require("../schemas/user.schema");
+var notification_1 = require("./notification");
 var jwt_handler_1 = require("../../utils/jwt-handler");
 var email_handler_1 = require("../../utils/email-handler");
 user_schema_1["default"].statics.createAccount = function (profile) {
@@ -69,6 +70,13 @@ user_schema_1["default"].statics.createAccount = function (profile) {
                 case 0: return [4 /*yield*/, this.create(__assign({}, profile))];
                 case 1:
                     User = _a.sent();
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: User._id,
+                            body: "Your account has been successfully created!.",
+                            type: "Account creation."
+                        })];
+                case 2:
+                    _a.sent();
                     token = (0, jwt_handler_1.createToken)(User._id, process.env.JWT_SECRETE);
                     return [2 /*return*/, [User, token]];
             }
@@ -126,26 +134,30 @@ user_schema_1["default"].statics.login = function (_a) {
                 ];
                 case 1:
                     user = _b.sent();
-                    if (!user) return [3 /*break*/, 3];
+                    if (!user) return [3 /*break*/, 5];
                     return [4 /*yield*/, bcrypt.compare(password, user.password)];
                 case 2:
                     result = _b.sent();
                     token = (0, jwt_handler_1.createToken)(user._id, process.env.JWT_SECRETE);
-                    if (result) {
-                        emailOpts = {
-                            to: email,
-                            from: 'noreply@digitalsagemedia.com',
-                            subject: 'Account Login',
-                            text: "Recent login activity on your account"
-                        };
-                        // await sendEmail(emailOpts)
-                        return [2 /*return*/, [user, token]];
-                    }
-                    else {
-                        throw Error('incorrect password');
-                    }
-                    _b.label = 3;
-                case 3: throw Error('incorrect email, no user exists for this email');
+                    if (!result) return [3 /*break*/, 4];
+                    emailOpts = {
+                        to: email,
+                        from: 'noreply@digitalsagemedia.com',
+                        subject: 'Account Login',
+                        text: "Recent login activity on your account"
+                    };
+                    // await sendEmail(emailOpts)
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: user._id,
+                            body: "There is a recent login activity on your account.",
+                            type: "Account Login."
+                        })];
+                case 3:
+                    // await sendEmail(emailOpts)
+                    _b.sent();
+                    return [2 /*return*/, [user, token]];
+                case 4: throw Error('incorrect password');
+                case 5: throw Error('incorrect email, no user exists for this email');
             }
         });
     });
@@ -266,7 +278,7 @@ user_schema_1["default"].statics.followUser = function (userId, followerId) {
                     return [4 /*yield*/, this.findById(userId)];
                 case 2:
                     user = _a.sent();
-                    if (!follower) return [3 /*break*/, 6];
+                    if (!follower) return [3 /*break*/, 7];
                     followers = user.followers;
                     foundFollower = followers.find(function (f) { return f === follower._id.toString(); });
                     if (foundFollower) {
@@ -279,11 +291,18 @@ user_schema_1["default"].statics.followUser = function (userId, followerId) {
                     return [4 /*yield*/, this.updateOne({ _id: followerId }, { following: __spreadArray(__spreadArray([], follower.following, true), [follower._id.toString()], false) })];
                 case 4:
                     _a.sent();
-                    return [4 /*yield*/, this.findById(userId)];
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: follower._id,
+                            body: user.name + " started following you.",
+                            type: "New follower."
+                        })];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, this.findById(userId)];
+                case 6:
                     user = _a.sent();
                     return [2 /*return*/, user];
-                case 6: throw Error('No user with that id!');
+                case 7: throw Error('No user with that id!');
             }
         });
     });

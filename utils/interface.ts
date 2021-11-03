@@ -130,3 +130,21 @@ export interface CommentModelInterface extends Model<CommentInterface>{
   editComment: (comment: CreateComment) => Promise<CommentInterface>
   deleteComment: (comment: CreateComment) => Promise<CommentInterface>
 }
+
+export interface INotification extends Document {
+  _id: ObjectId
+  userId: string
+  body: string
+  isRead: boolean
+  type: string
+  date: string
+  markAsRead: () => void
+}
+/**
+ * @interface NotificationModel interface for notification model
+ */
+export interface NotificationModel extends Model<INotification> {
+  markMutlipleAsRead: (notificationId: string[]) => Promise<void>
+  findUserNotifications: (userId: string) => Promise<INotification> 
+  getUnReadNotifications: (userId: string) => INotification[] 
+}

@@ -38,20 +38,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var mongoose_1 = require("mongoose");
 var comments_schema_1 = require("../schemas/comments.schema");
+var notification_1 = require("./notification");
 var article_model_1 = require("./article.model");
 var user_model_1 = require("./user.model");
 comments_schema_1["default"].statics.createComment = function (comment) {
     return __awaiter(this, void 0, void 0, function () {
-        var article;
+        var article, user;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, article_model_1["default"].findById(comment.articleId)];
                 case 1:
                     article = _a.sent();
-                    if (!article) return [3 /*break*/, 3];
+                    if (!article) return [3 /*break*/, 5];
+                    return [4 /*yield*/, user_model_1["default"].findById(comment.userId)];
+                case 2:
+                    user = _a.sent();
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: article.author,
+                            body: user.name + " commented on your article.",
+                            type: "Article commented on."
+                        })];
+                case 3:
+                    _a.sent();
                     return [4 /*yield*/, this.create(comment)];
-                case 2: return [2 /*return*/, _a.sent()];
-                case 3: throw Error('No user exists with that id');
+                case 4: return [2 /*return*/, _a.sent()];
+                case 5: throw Error('No article exists with that id');
             }
         });
     });
@@ -94,40 +105,63 @@ comments_schema_1["default"].statics.deleteComment = function (comment) {
 };
 comments_schema_1["default"].methods.likeComment = function (userId, optn) {
     return __awaiter(this, void 0, void 0, function () {
-        var user, _a;
+        var user, article, _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, user_model_1["default"].findById(userId)];
                 case 1:
                     user = _b.sent();
-                    if (!user) return [3 /*break*/, 6];
-                    if (!(optn === 'add')) return [3 /*break*/, 3];
-                    return [4 /*yield*/, this.updateOne({ likes: this.likes + 1 })];
+                    return [4 /*yield*/, article_model_1["default"].findById(this.articleId)];
                 case 2:
+                    article = _b.sent();
+                    if (!user) return [3 /*break*/, 8];
+                    if (!(optn === 'add')) return [3 /*break*/, 4];
+                    return [4 /*yield*/, this.updateOne({ likes: this.likes + 1 })];
+                case 3:
                     _a = _b.sent();
-                    return [3 /*break*/, 5];
-                case 3: return [4 /*yield*/, this.updateOne({ likes: this.likes - 1 })];
-                case 4:
-                    _a = _b.sent();
-                    _b.label = 5;
+                    return [3 /*break*/, 6];
+                case 4: return [4 /*yield*/, this.updateOne({ likes: this.likes - 1 })];
                 case 5:
+                    _a = _b.sent();
+                    _b.label = 6;
+                case 6:
                     _a;
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: article.author,
+                            body: user.name + " likes your comment.",
+                            type: "Comment liked."
+                        })];
+                case 7:
+                    _b.sent();
                     return [2 /*return*/, this];
-                case 6: throw Error('No user exists with that id');
+                case 8: throw Error('No user exists with that id');
             }
         });
     });
 };
 comments_schema_1["default"].methods.comment = function (comment) {
     return __awaiter(this, void 0, void 0, function () {
-        var Comment;
+        var article, commentor, Comment;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     comment.parentCommentId = this._id.toString();
-                    return [4 /*yield*/, (0, mongoose_1.model)('comment').create(comment)];
+                    return [4 /*yield*/, article_model_1["default"].findById(comment.articleId)];
                 case 1:
+                    article = _a.sent();
+                    return [4 /*yield*/, user_model_1["default"].findById(comment.userId)];
+                case 2:
+                    commentor = _a.sent();
+                    return [4 /*yield*/, (0, mongoose_1.model)('comment').create(comment)];
+                case 3:
                     Comment = _a.sent();
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: article.author,
+                            body: commentor.name + " replied to your comment.",
+                            type: "Comment replied."
+                        })];
+                case 4:
+                    _a.sent();
                     return [2 /*return*/, Comment];
             }
         });

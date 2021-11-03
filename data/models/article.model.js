@@ -58,6 +58,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 exports.__esModule = true;
 var mongoose_1 = require("mongoose");
 var article_schema_1 = require("../schemas/article.schema");
+var notification_1 = require("./notification");
 var user_model_1 = require("./user.model");
 article_schema_1["default"].statics.createArticle = function (article) {
     return __awaiter(this, void 0, void 0, function () {
@@ -67,12 +68,19 @@ article_schema_1["default"].statics.createArticle = function (article) {
                 case 0: return [4 /*yield*/, user_model_1["default"].findById(article.author)];
                 case 1:
                     author = _a.sent();
-                    if (!author) return [3 /*break*/, 3];
+                    if (!author) return [3 /*break*/, 4];
                     return [4 /*yield*/, this.create(__assign({}, article))];
                 case 2:
                     Article = _a.sent();
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: Article.author,
+                            body: "A new Article with title " + Article.title + " has been created by " + author.name,
+                            type: "Article created."
+                        })];
+                case 3:
+                    _a.sent();
                     return [2 /*return*/, Article];
-                case 3: throw Error('No user with Id!');
+                case 4: throw Error('No user with Id!');
             }
         });
     });
@@ -129,7 +137,7 @@ article_schema_1["default"].methods.likeArticle = function (userId, optn) {
                 case 0: return [4 /*yield*/, user_model_1["default"].findById(userId)];
                 case 1:
                     user = _b.sent();
-                    if (!user) return [3 /*break*/, 6];
+                    if (!user) return [3 /*break*/, 7];
                     if (!(optn === 'add')) return [3 /*break*/, 3];
                     return [4 /*yield*/, this.updateOne({ likes: this.likes + 1 })];
                 case 2:
@@ -141,8 +149,15 @@ article_schema_1["default"].methods.likeArticle = function (userId, optn) {
                     _b.label = 5;
                 case 5:
                     _a;
+                    return [4 /*yield*/, notification_1["default"].create({
+                            userId: user._id,
+                            body: "You have a new like on your article, total likes, " + this.likes,
+                            type: "New Like on article."
+                        })];
+                case 6:
+                    _b.sent();
                     return [2 /*return*/, this];
-                case 6: throw Error('No user exists with that id');
+                case 7: throw Error('No user exists with that id');
             }
         });
     });

@@ -1,12 +1,18 @@
 import { model } from 'mongoose';
 import * as bcrypt from 'bcrypt'
 import UserSchema from '../schemas/user.schema'
+import Notifications from './notification';
 import { UserInterface, UserModelInterface, CreateAccountProfile, Gender, socialMediaInfo } from '../../utils/interface'
 import { createToken } from '../../utils/jwt-handler'
 import { sendEmail } from '../../utils/email-handler'
 
 UserSchema.statics.createAccount = async function (profile: CreateAccountProfile) {
   const User = await this.create({ ...profile })
+  await Notifications.create({
+    userId: User._id,
+    body: `Your account has been successfully created!.`,
+    type: "Account creation."
+  })
   const token = createToken(User._id, process.env.JWT_SECRETE)
   return [ User, token ]
 }
@@ -46,6 +52,11 @@ UserSchema.statics.login = async function({email, password}) {
         text: `Recent login activity on your account`
       }
       // await sendEmail(emailOpts)
+      await Notifications.create({
+        userId: user._id,
+        body: `There is a recent login activity on your account.`,
+        type: "Account Login."
+      })
       return [ user, token ]
     }
     else {
@@ -123,6 +134,11 @@ UserSchema.statics.followUser = async function (userId: string, followerId){
     console.log(user._id)
     await this.updateOne({ _id: userId }, { followers: [...followers, follower._id.toString()]})
     await this.updateOne({ _id: followerId }, { following: [...follower.following, follower._id.toString()]})
+    await Notifications.create({
+      userId: follower._id,
+      body: `${user.name} started following you.`,
+      type: "New follower."
+    })
     user = await this.findById(userId)
     return user
   }

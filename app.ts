@@ -8,6 +8,8 @@ import Articles from "./data/models/article.model";
 import { ArticleQueries, Article } from "./controllers/article/article.controller";
 import { CommentQueries, CommentMutations, Comment } from "./controllers/comment/comment.controller";
 import UserModel from "./data/models/user.model";
+import { NotificationQueries, NotificationMutations, Notification } from "./controllers/notification/notification.controller";
+import Notifications from "./data/models/notification";
 const url = 'mongodb://localhost:27017/disme'
 
 const typeDefs = gql`
@@ -26,6 +28,7 @@ const typeDefs = gql`
     savedArticles: [Article]
     articles: [Article]
     followers: [User]!
+    notifications: [Notification!]!
     following: [User]!
   }
 
@@ -61,6 +64,15 @@ const typeDefs = gql`
     comments: [Comment]!
   }
 
+  type Notification {
+    _id: ID!
+    user: User!
+    body: String!
+    isRead: Boolean!
+    type: String!
+    date: String!
+  }
+
   type _SocialMediaInfo {
     facebook: String!
     twitter: String!
@@ -74,6 +86,10 @@ const typeDefs = gql`
     article(id: String): Article!
     comments(articleId: String): [Comment!]!
     comment(id: String): Comment!
+    notifications: [Notification!]!
+    notification(id: String): Notification!
+    usersNotifications(userId: String): [Notification!]!
+    usersUnReadNotifications(userId: String): [Notification!]
   }
 
   input CreateAccount {
@@ -135,6 +151,8 @@ const typeDefs = gql`
     deleteComment(comment: CreateComment): Comment
     createChildComment(comment: CreateComment): Comment 
     likeComment(userId: String, optn: String, commentId: String): Comment
+    markNotificationAsRead(id: String): Notification
+    markMultipleNotificationsAsRead(ids: [String!]!): String
   }
 `
 
@@ -154,10 +172,14 @@ const resolvers = {
     },
     async following(parent:any){
       return parent.following.map(f => UserModel.findById(f))
+    },
+    async notifications(parent:any){
+      return Notifications.findUserNotifications(parent._id)
     }
   },
   Article,
   Comment,
+  Notification,
   Query : {
     users (_: any, args: any, context: any) {
       // console.log(context.req.headers.usertoken);
@@ -167,6 +189,7 @@ const resolvers = {
       return getUser(id)
     },
     ...ArticleQueries,
+    ...NotificationQueries,
     ...CommentQueries
   },
 
@@ -212,7 +235,8 @@ const resolvers = {
       return await UserModel.unFollowUser(userId, followerId)
     },
     ...ArticleMutations,
-    ...CommentMutations
+    ...CommentMutations,
+    ...NotificationMutations
   }
 }
 
