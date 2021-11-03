@@ -1,5 +1,6 @@
 import Articles from "../../data/models/article.model";
 import Comments from "../../data/models/comment.model";
+import { UserInputError } from "apollo-server";
 
 const ArticleMutations = {
 
@@ -38,9 +39,81 @@ const ArticleMutations = {
 }
 
 export const ArticleQueries = {
-  async articles(){
+  async articles(_:any, { after, limit, before }){
     const articles = await Articles.find({})
-    return articles
+    // console.log(articles)
+    if(!after && !before){
+      after = articles[0]._id.toString()
+    }
+
+    let pageInfo;
+    let Response;
+
+    
+    const Edges = articles.map((article) => {
+      // console.log(article)
+      return ({
+        cursor: article._id.toString(),
+        node: { Article: article }
+      })
+    })
+
+
+    if(before && after){
+      throw new UserInputError("cannot use before and after inside a single query")
+    }
+
+    if(before){
+      pageInfo = {
+        endCursor: articles[
+          Edges.indexOf(
+            Edges.find(e => e.node.Article._id.toString() == before )
+          ) - limit + 1
+        ]._id.toString(),
+        hasNextPage: false
+      }
+
+      Response = {
+        pageInfo,
+        count: Edges.length,
+        edges: Edges.slice(
+          Edges.indexOf(
+            Edges.find(e => e.node.Article._id.toString() == before )
+          ),
+          Edges.indexOf(
+            Edges.find(e => e.node.Article._id.toString() == before )
+          ) + limit
+        )
+      }
+
+    } else {
+        pageInfo = {
+        endCursor: articles[
+          Edges.indexOf(
+            Edges.find(e => e.node.Article._id.toString() == after )
+          ) + limit - 1
+        ]._id.toString(),
+        hasNextPage: false
+      }
+
+      Response = {
+        pageInfo,
+        count: Edges.length,
+        edges: Edges.slice(
+          Edges.indexOf(
+            Edges.find(e => e.node.Article._id.toString() == after )
+          ),
+          Edges.indexOf(
+            Edges.find(e => e.node.Article._id.toString() == after )
+          ) + limit
+        )
+        }
+    }
+    
+    console.log(Edges)
+    
+    // console.log(Response)
+    return Response
   },
   
   async article(_:any, { id }, context){

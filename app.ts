@@ -2,17 +2,35 @@ import { ApolloServer , gql } from "apollo-server";
 import * as mongoose from 'mongoose';
 require('dotenv').config()
 
-import { getUsers, createAccount, login, getUser, updatePhoneNumber, updateDOB, updateDisplayImage, updateSocialMediaInfo, updateGender, deleteUser } from './controllers/user/user.controller'
 import ArticleMutations from "./controllers/article/article.controller";
-import Articles from "./data/models/article.model";
 import { ArticleQueries, Article } from "./controllers/article/article.controller";
 import { CommentQueries, CommentMutations, Comment } from "./controllers/comment/comment.controller";
-import UserModel from "./data/models/user.model";
 import { NotificationQueries, NotificationMutations, Notification } from "./controllers/notification/notification.controller";
-import Notifications from "./data/models/notification";
+import { UserMutations, UserQueries, User } from "./controllers/user/user";
 const url = 'mongodb://localhost:27017/disme'
 
 const typeDefs = gql`
+  type Edge {
+    cursor: String
+    node: Node
+  }
+
+  type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean
+  }
+
+  type Response {
+    edges: [Edge]
+    count: Int!
+    pageInfo: PageInfo 
+  }
+
+  type Node {
+    User: User
+    Article: Article
+  }
+
   type User {
     name: String!
     _id: ID!
@@ -31,6 +49,7 @@ const typeDefs = gql`
     notifications: [Notification!]!
     following: [User]!
   }
+  
 
   type Article {
     _id: ID
@@ -58,6 +77,7 @@ const typeDefs = gql`
     updatedAt: String!
     body: String!
     userId: String!
+    user: User!
     parentCommentId: String
     articleId: String!
     likes: Int!
@@ -80,9 +100,9 @@ const typeDefs = gql`
   }
 
   type Query {
-    users: [User!]!
+    users(after: String, limit: Int!): Response!
     user(id: String): User!
-    articles: [Article!]!
+    articles(after: String, limit: Int!, before: String): Response!
     article(id: String): Article!
     comments(articleId: String): [Comment!]!
     comment(id: String): Comment!
@@ -157,83 +177,19 @@ const typeDefs = gql`
 `
 
 const resolvers = {
-  User: {
-    async articles (parent: any){
-      return await Articles.getUserArticles(parent._id)
-    },
-    async savedArticles(parent:any){
-      const articles = parent.savedArticles.map(async (article) => {
-        return Articles.findById(article)
-      })
-      return articles
-    },
-    async followers(parent:any){
-      return parent.followers.map(f => UserModel.findById(f))
-    },
-    async following(parent:any){
-      return parent.following.map(f => UserModel.findById(f))
-    },
-    async notifications(parent:any){
-      return Notifications.findUserNotifications(parent._id)
-    }
-  },
+  User,
   Article,
   Comment,
   Notification,
   Query : {
-    users (_: any, args: any, context: any) {
-      // console.log(context.req.headers.usertoken);
-      return getUsers()
-    },
-    user (_:any, { id }, context: any){
-      return getUser(id)
-    },
+    ...UserQueries,
     ...ArticleQueries,
     ...NotificationQueries,
     ...CommentQueries
   },
 
   Mutation: {
-    async createAccount(_:any, { profile }, context: any){
-      const [ User, token ] = await createAccount(profile);
-      User.token = token
-      return User
-    },
-    async login(_:any, { loginInfo }, context: any){
-      const [ user, token ] = await login(loginInfo)
-      user.token = token
-      return user
-    },
-    async updatePhoneNumber(_: any, { phoneNumber, id }, context){
-      return await updatePhoneNumber(id, phoneNumber)
-    },
-    async updateDOB(_: any, { dob, id }, context){
-      return await updateDOB(id, dob)
-    },
-    async updateDisplayImage(_: any, { imageUrl, id }, context){
-      return await updateDisplayImage(id, imageUrl)
-    },
-    async updateGender(_: any, { gender, id }, context){
-      return await updateGender(id, gender)
-    },
-    async updateSocialMediaInfo(_: any, { socialMediaInfo, id }, context){
-      return await updateSocialMediaInfo(id, socialMediaInfo)
-    },
-    async deleteAccount(_:any, { id }, context){
-      const user = getUser(id)
-      if(user) {
-        await deleteUser(id)
-        return user
-      }
-    },
-    async followUser(_:any, { userId, followerId }){
-      const user = await UserModel.followUser(userId, followerId)
-      console.log(user)
-      return user
-    },
-    async unFollowUser(_:any, { userId, followerId }){
-      return await UserModel.unFollowUser(userId, followerId)
-    },
+    ...UserMutations,
     ...ArticleMutations,
     ...CommentMutations,
     ...NotificationMutations

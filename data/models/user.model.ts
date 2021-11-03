@@ -35,7 +35,7 @@ UserSchema.post('save', async function(next){
     subject: 'Account Creation',
     text: 'Your account has been created successfully'
   }
-  await sendEmail(emailOpts);
+  // await sendEmail(emailOpts);
 })
 
 UserSchema.statics.login = async function({email, password}) {

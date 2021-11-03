@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.Comment = exports.CommentMutations = exports.CommentQueries = void 0;
 var comment_model_1 = require("../../data/models/comment.model");
+var user_model_1 = require("../../data/models/user.model");
 exports.CommentQueries = {
     comments: function (_, _a) {
         var articleId = _a.articleId;
@@ -136,6 +137,19 @@ exports.Comment = {
             return __generator(this, function (_a) {
                 comments = comment_model_1["default"].find({ parentCommentId: parent._id });
                 return [2 /*return*/, comments];
+            });
+        });
+    },
+    user: function (parent) {
+        return __awaiter(this, void 0, void 0, function () {
+            var User;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, user_model_1["default"].findById(parent.userId)];
+                    case 1:
+                        User = _a.sent();
+                        return [2 /*return*/, User];
+                }
             });
         });
     }

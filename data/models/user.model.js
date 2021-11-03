@@ -107,19 +107,13 @@ user_schema_1["default"].post('save', function (next) {
     return __awaiter(this, void 0, void 0, function () {
         var emailOpts;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    emailOpts = {
-                        from: 'noreply@digitalsagemedia.com',
-                        to: this.email,
-                        subject: 'Account Creation',
-                        text: 'Your account has been created successfully'
-                    };
-                    return [4 /*yield*/, (0, email_handler_1.sendEmail)(emailOpts)];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+            emailOpts = {
+                from: 'noreply@digitalsagemedia.com',
+                to: this.email,
+                subject: 'Account Creation',
+                text: 'Your account has been created successfully'
+            };
+            return [2 /*return*/];
         });
     });
 });

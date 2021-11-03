@@ -93,6 +93,7 @@ var getUsers = function () { return __awaiter(void 0, void 0, void 0, function (
                 return [4 /*yield*/, user_model_1["default"].find({})];
             case 1:
                 Users = _a.sent();
+                // console.log(Users)
                 return [2 /*return*/, Users];
             case 2:
                 error_3 = _a.sent();

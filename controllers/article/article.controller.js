@@ -39,6 +39,7 @@ exports.__esModule = true;
 exports.Article = exports.ArticleQueries = void 0;
 var article_model_1 = require("../../data/models/article.model");
 var comment_model_1 = require("../../data/models/comment.model");
+var apollo_server_1 = require("apollo-server");
 var ArticleMutations = {
     createArticle: function (_, _a, context) {
         var article = _a.article;
@@ -126,15 +127,56 @@ var ArticleMutations = {
     }
 };
 exports.ArticleQueries = {
-    articles: function () {
+    articles: function (_, _a) {
+        var after = _a.after, limit = _a.limit, before = _a.before;
         return __awaiter(this, void 0, void 0, function () {
-            var articles;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].find({})];
+            var articles, pageInfo, Response, Edges;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, article_model_1["default"].find({})
+                        // console.log(articles)
+                    ];
                     case 1:
-                        articles = _a.sent();
-                        return [2 /*return*/, articles];
+                        articles = _b.sent();
+                        // console.log(articles)
+                        if (!after && !before) {
+                            after = articles[0]._id.toString();
+                        }
+                        Edges = articles.map(function (article) {
+                            // console.log(article)
+                            return ({
+                                cursor: article._id.toString(),
+                                node: { Article: article }
+                            });
+                        });
+                        if (before && after) {
+                            throw new apollo_server_1.UserInputError("cannot use before and after inside a single query");
+                        }
+                        if (before) {
+                            pageInfo = {
+                                endCursor: articles[Edges.indexOf(Edges.find(function (e) { return e.node.Article._id.toString() == before; })) - limit + 1]._id.toString(),
+                                hasNextPage: false
+                            };
+                            Response = {
+                                pageInfo: pageInfo,
+                                count: Edges.length,
+                                edges: Edges.slice(Edges.indexOf(Edges.find(function (e) { return e.node.Article._id.toString() == before; })), Edges.indexOf(Edges.find(function (e) { return e.node.Article._id.toString() == before; })) + limit)
+                            };
+                        }
+                        else {
+                            pageInfo = {
+                                endCursor: articles[Edges.indexOf(Edges.find(function (e) { return e.node.Article._id.toString() == after; })) + limit - 1]._id.toString(),
+                                hasNextPage: false
+                            };
+                            Response = {
+                                pageInfo: pageInfo,
+                                count: Edges.length,
+                                edges: Edges.slice(Edges.indexOf(Edges.find(function (e) { return e.node.Article._id.toString() == after; })), Edges.indexOf(Edges.find(function (e) { return e.node.Article._id.toString() == after; })) + limit)
+                            };
+                        }
+                        console.log(Edges);
+                        // console.log(Response)
+                        return [2 /*return*/, Response];
                 }
             });
         });

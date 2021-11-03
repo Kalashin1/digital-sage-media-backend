@@ -1,6 +1,7 @@
 import { CreateContextOptions } from "vm";
 import Comments from "../../data/models/comment.model";
-import { CreateChildComment, CreateComment } from "../../utils/interface";
+import UserModel from "../../data/models/user.model";
+import { CommentInterface, CreateChildComment, CreateComment } from "../../utils/interface";
 
 export const CommentQueries = {
   async comments(_: any, { articleId }){
@@ -39,5 +40,9 @@ export const Comment = {
   async comments(parent: any){
     const comments = Comments.find({ parentCommentId: parent._id})
     return comments
+  },
+  async user(parent: CommentInterface){
+    const User = await UserModel.findById(parent.userId)
+    return User
   }
 }

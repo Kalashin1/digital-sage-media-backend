@@ -29,6 +29,7 @@ export const login = async (info: loginInfo) => {
 export const getUsers = async () => {
   try {
     const Users = await UserModel.find({});
+    // console.log(Users)
     return Users
   } catch (error) {
     console.log(error)
